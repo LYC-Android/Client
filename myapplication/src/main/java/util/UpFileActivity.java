@@ -32,6 +32,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import cn.bmob.v3.BmobUser;
 import mrcheng.myapplication.BaseActivity;
+import mrcheng.myapplication.MyThread;
 import mrcheng.myapplication.R;
 
 /**
@@ -135,10 +136,10 @@ public class UpFileActivity extends BaseActivity implements Runnable {
             file.createNewFile();
 
             writer = new BufferedWriter(new FileWriter(file));
-            ReadFileThread readFileThread = new ReadFileThread(UpFileActivity.this, "");
+            MyThread myThread=new MyThread();
             double[] doubles = new double[65536];
             for (int j = 0; j < mydatas.length; j++) {
-                readFileThread.getStringFromNative(mydatas[j], doubles);
+                myThread.getStringFromNative(mydatas[j], doubles);
                 for (int i = 0; i < 8192; i++) {
                     writer.write(doubles[i] + "\r\n");
                     writer.flush();

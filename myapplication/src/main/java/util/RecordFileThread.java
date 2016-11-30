@@ -11,19 +11,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import mrcheng.myapplication.MyThread;
+
 /**
  * Created by mr.cheng on 2016/10/11.
  */
 public class RecordFileThread extends Thread {
     private AudioRecord recorder;
     private Handler mHandler;
-
-    static {
-        System.loadLibrary("myNativeLib");
-    }
-
-    public native void getStringFromNative(short[] shorts, double[] doubles);
-
+    private MyThread mMyThread=new MyThread();
     public RecordFileThread(Handler handler) {
         mHandler = handler;
     }
@@ -41,7 +37,7 @@ public class RecordFileThread extends Thread {
         recorder.stop();
         recorder.release();
         double[] doubles = new double[65536];
-        getStringFromNative(myRecoed, doubles);
+        mMyThread.getStringFromNative(myRecoed, doubles);
         MyWriteFileMethod(doubles);
     }
 

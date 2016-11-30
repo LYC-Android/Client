@@ -27,22 +27,15 @@ import bean.Trasmit;
 import cn.bmob.v3.listener.SaveListener;
 import mrcheng.myapplication.BaseActivity;
 import mrcheng.myapplication.Bmob_ChatActivity;
+import mrcheng.myapplication.MyThread;
 import mrcheng.myapplication.R;
 
 /**
  * Created by mr.cheng on 2016/9/28.
  */
 public class ReadFileThread extends Thread {
-    static {
-
-        System.loadLibrary("myNativeLib");
-
-    }
-
     private ObjectInputStream objectInputStream;
     private ServerSocket serverSocket;
-
-    public native void getStringFromNative(short[] shorts, double[] doubles);
 
     private Context mContext;
     private List<Float> mDatas = new ArrayList<>();
@@ -58,10 +51,6 @@ public class ReadFileThread extends Thread {
         mContext = context;
         this.Ip = ip;
         ReadFile();
-    }
-
-    public void MyNativeMethod(short[] shorts, double[] doubles) {
-        getStringFromNative(shorts, doubles);
     }
 
     @Override
@@ -116,6 +105,7 @@ public class ReadFileThread extends Thread {
 
     private void ReadFile() {
         try {
+            MyThread my=new MyThread();
             int length;
             InputStream is = mContext.getResources().openRawResource(R.raw.fmsignal);
             BufferedInputStream inputStream = new BufferedInputStream(is);
@@ -123,7 +113,7 @@ public class ReadFileThread extends Thread {
             double[] doubles = new double[65536];
             while ((length = inputStream.read(buf, 0, buf.length)) != -1) {
                 short[] shorts = byteArray2ShortArray(buf, buf.length / 2);
-                getStringFromNative(shorts, doubles);
+                my.getStringFromNative(shorts, doubles);
             }
             inputStream.close();
             is.close();
