@@ -4,6 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,15 +49,9 @@ public class UpFileActivity extends BaseActivity implements Runnable {
     @InjectView(R.id.record)
     Button mRecord;
     private AudioRecord recorder;
-    private String path;
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private UpFileAdapter mAdapter;
     private List<OutLineFile> datas = new ArrayList<>();
-
-    static {
-        System.loadLibrary("myNativeLib");
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,15 +115,20 @@ public class UpFileActivity extends BaseActivity implements Runnable {
         BufferedWriter writer = null;
         try {
             MyUser myUser = BmobUser.getCurrentUser(UpFileActivity.this, MyUser.class);
+            String mPath = Environment.getExternalStorageDirectory().getPath() + File.separator +"bmob"+File.separator ;
+            File file1 = new File(mPath);
+            if (!file1.exists()) {
+                file1.mkdirs();
+            }
             StringBuilder builder = new StringBuilder();
-            builder.append("/storage/sdcard0/bmob/");
+            builder.append(mPath);
             builder.append(myUser.getUsername());
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             Date date = new Date(System.currentTimeMillis());
             String name = format.format(date);
             builder.append(name);
             builder.append(".txt");
-            path = builder.toString();
+            String path = builder.toString();
             File file = new File(path);
             if (file.exists()) {
                 file.delete();
@@ -140,7 +140,7 @@ public class UpFileActivity extends BaseActivity implements Runnable {
             double[] doubles = new double[65536];
             for (int j = 0; j < mydatas.length; j++) {
                 myThread.getStringFromNative(mydatas[j], doubles);
-                for (int i = 0; i < 8192; i++) {
+                for (int i = 0; i < 4000; i++) {
                     writer.write(doubles[i] + "\r\n");
                     writer.flush();
                 }
@@ -165,6 +165,7 @@ public class UpFileActivity extends BaseActivity implements Runnable {
             e.printStackTrace();
         } finally {
             try {
+                if (writer!=null)
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();

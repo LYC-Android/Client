@@ -50,7 +50,7 @@ public class ReadFileThread extends Thread {
     public ReadFileThread(Context context, String ip) {
         mContext = context;
         this.Ip = ip;
-        ReadFile();
+
     }
 
     @Override
@@ -60,17 +60,8 @@ public class ReadFileThread extends Thread {
             serverSocket=new ServerSocket(Constant.TCP_PORT);
             mSocket=serverSocket.accept();
 
-//            InetSocketAddress socketAddress = new InetSocketAddress(Ip, Constant.TCP_PORT);
-//            mSocket = new Socket();
-//            while (!mSocket.isConnected()) {
-//                try {
-//                    mSocket.connect(socketAddress, 5000);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    Thread.sleep(1000);
-//                }
-//            }
             EventBus.getDefault().post("已连接");
+            ReadFile();
             mObjectOutputStream = new ObjectOutputStream(new BufferedOutputStream(mSocket.getOutputStream()));
             //注册广播接受者java代码
             IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -96,7 +87,9 @@ public class ReadFileThread extends Thread {
             e.printStackTrace();
         }finally {
             try {
-                serverSocket.close();
+                if (serverSocket!=null) {
+                    serverSocket.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -118,7 +111,7 @@ public class ReadFileThread extends Thread {
             inputStream.close();
             is.close();
             mDatas.clear();
-            for (int i = 0; i < 8192; i++) {
+            for (int i = 0; i < 4000; i++) {
                 mDatas.add((float) doubles[i]);
             }
         } catch (IOException e) {
@@ -146,8 +139,12 @@ public class ReadFileThread extends Thread {
                 e.printStackTrace();
             }finally {
                 try {
-                    mObjectOutputStream.close();
-                    mSocket.close();
+                    if (mObjectOutputStream!=null) {
+                        mObjectOutputStream.close();
+                    }
+                    if (mSocket!=null) {
+                        mSocket.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
