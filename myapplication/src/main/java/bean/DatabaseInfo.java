@@ -13,6 +13,24 @@ public class DatabaseInfo extends DataSupport {
     private String medicalNumber;
     private String sex;
     private String age;
+    private String cardNumber;
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
 
     public String getAge() {
         return age;

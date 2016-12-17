@@ -20,11 +20,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/data"
-            android:textSize="20sp"
             />
         <com.dd.CircularProgressButton
             android:layout_height="wrap_content"
-            android:layout_width="120dp"
+            android:layout_width="wrap_content"
             android:layout_alignParentRight="true"
             android:textColor="#FFFFFF"
             android:textSize="18sp"

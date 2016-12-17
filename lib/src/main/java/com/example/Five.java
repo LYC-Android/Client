@@ -16,7 +16,11 @@ public class Five {
     private int mInt=20;
 
     private void method() {
-        System.out.printf("输入参数为:"+mInt+"，输出16进制形式为:"+algorismToHEXString(mInt));
+        String str = "a b";
+        String[] arr=str.split("\\s+");
+        for (int i = 0; i < arr.length; i++) {
+            System.out.println(arr[i]);
+        }
     }
     public static String algorismToHEXString(int algorism) {
         String result = "";

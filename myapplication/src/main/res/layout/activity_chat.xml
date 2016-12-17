@@ -37,7 +37,15 @@
         fab:fab_addButtonPlusIconColor="#ffffff"
         fab:fab_addButtonSize="normal"
         fab:fab_labelStyle="@style/menu_labels_style">
-
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/history"
+            fab:fab_icon="@drawable/ic_assignment_white_48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="#FFFF33"
+            fab:fab_title="历史报告"
+            fab:fab_addButtonSize="normal"
+            fab:fab_colorPressed="#FFFF33"/>
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/download"
             android:layout_width="wrap_content"
@@ -47,7 +55,7 @@
             fab:fab_colorNormal="#0fb73d"
             fab:fab_colorPressed="#0fb73d"
             fab:fab_icon="@drawable/download"
-            fab:fab_title="离线下载"/>
+            fab:fab_title="离线上传"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/setting"

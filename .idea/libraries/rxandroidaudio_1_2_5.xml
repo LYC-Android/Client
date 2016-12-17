@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="rxandroidaudio-1.2.5">
+    <ANNOTATIONS>
+      <root url="jar://$PROJECT_DIR$/myapplication/build/intermediates/exploded-aar/com.github.piasy/rxandroidaudio/1.2.5/annotations.zip!/" />
+    </ANNOTATIONS>
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/myapplication/build/intermediates/exploded-aar/com.github.piasy/rxandroidaudio/1.2.5/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/myapplication/build/intermediates/exploded-aar/com.github.piasy/rxandroidaudio/1.2.5/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.piasy/rxandroidaudio/1.2.5/ea3accecdadfa7c8289ddca2d07a88b2548c5fd6/rxandroidaudio-1.2.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

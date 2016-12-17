@@ -1,5 +1,6 @@
 package util;
 
+import android.Manifest;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -9,10 +10,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.piasy.rxandroidaudio.StreamAudioRecorder;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.litepal.crud.DataSupport;
 
@@ -35,12 +40,13 @@ import cn.bmob.v3.BmobUser;
 import mrcheng.myapplication.BaseActivity;
 import mrcheng.myapplication.MyThread;
 import mrcheng.myapplication.R;
+import rx.functions.Action1;
 
 /**
  *
  */
 
-public class UpFileActivity extends BaseActivity implements Runnable {
+public class UpFileActivity extends BaseActivity {
 
     @InjectView(R.id.status)
     TextView mStatus;
@@ -48,10 +54,17 @@ public class UpFileActivity extends BaseActivity implements Runnable {
     RecyclerView mRecycleView;
     @InjectView(R.id.record)
     Button mRecord;
-    private AudioRecord recorder;
+    private static final String TAG = "UpFileActivity";
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private UpFileAdapter mAdapter;
+    private AudioRecord recorder;
     private List<OutLineFile> datas = new ArrayList<>();
+    private BufferedWriter writer;
+    private String path;
+    private Date date;
+    private MyThread JNI = new MyThread();
+
+    private Thread RecordThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +77,10 @@ public class UpFileActivity extends BaseActivity implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                8000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                128000);
         mAdapter = new UpFileAdapter(UpFileActivity.this, datas, mHandler);
         mRecycleView.setLayoutManager(new LinearLayoutManager(this));
         mRecycleView.setAdapter(mAdapter);
@@ -73,77 +90,56 @@ public class UpFileActivity extends BaseActivity implements Runnable {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.record:
-                 mRecord.setEnabled(false);
-                new Thread(this).start();
+                mRecord.setEnabled(false);
+                start();
                 break;
         }
     }
 
-    @Override
-    public void run() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(UpFileActivity.this, "正在录制，请耐心等待32秒", Toast.LENGTH_SHORT).show();
-                mStatus.setText("当前状态:录制中.....");
-            }
-        });
-        short[][] mydatas = new short[1][];
-        short[] myRecoed = new short[64000];
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                8000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                128000);
-        recorder.startRecording();//开始录音
-        for (int i = 0; i < mydatas.length; i++) {
-            recorder.read(myRecoed, 0, myRecoed.length);
-            mydatas[i] = myRecoed;
+    public void start() {
+        boolean isPermissionsGranted = RxPermissions.getInstance(getApplicationContext())
+                .isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && RxPermissions.getInstance(getApplicationContext())
+                .isGranted(Manifest.permission.RECORD_AUDIO);
+        if (!isPermissionsGranted) {
+            RxPermissions.getInstance(getApplicationContext())
+                    .request(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO)
+                    .subscribe(new Action1<Boolean>() {
+                        @Override
+                        public void call(Boolean granted) {
+                            // not record first time to request permission
+                            if (granted) {
+                                Toast.makeText(getApplicationContext(), "Permission granted",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getApplicationContext(),
+                                        "Permission not granted", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            throwable.printStackTrace();
+                        }
+                    });
+        } else {
+            RecordThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    startRecord();
+                }
+            });
+            RecordThread.start();
         }
-        recorder.stop();
-        recorder.release();
-        MyWriteFileMethod(mydatas);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mRecord.setEnabled(true);
-            }
-        });
 
     }
 
-    private void MyWriteFileMethod(final short[][] mydatas) {
-        BufferedWriter writer = null;
-        try {
-            MyUser myUser = BmobUser.getCurrentUser(UpFileActivity.this, MyUser.class);
-            String mPath = Environment.getExternalStorageDirectory().getPath() + File.separator +"bmob"+File.separator ;
-            File file1 = new File(mPath);
-            if (!file1.exists()) {
-                file1.mkdirs();
-            }
-            StringBuilder builder = new StringBuilder();
-            builder.append(mPath);
-            builder.append(myUser.getUsername());
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-            Date date = new Date(System.currentTimeMillis());
-            String name = format.format(date);
-            builder.append(name);
-            builder.append(".txt");
-            String path = builder.toString();
-            File file = new File(path);
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
+    private void stopRecord() {
 
-            writer = new BufferedWriter(new FileWriter(file));
-            MyThread myThread=new MyThread();
-            double[] doubles = new double[65536];
-            for (int j = 0; j < mydatas.length; j++) {
-                myThread.getStringFromNative(mydatas[j], doubles);
-                for (int i = 0; i < 4000; i++) {
-                    writer.write(doubles[i] + "\r\n");
-                    writer.flush();
-                }
+        try {
+            if (writer != null) {
+                writer.close();
             }
             SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             OutLineFile outLineFile = new OutLineFile();
@@ -156,20 +152,97 @@ public class UpFileActivity extends BaseActivity implements Runnable {
                 @Override
                 public void run() {
                     mAdapter.notifyDataSetChanged();
+                    mRecord.setEnabled(true);
                     Toast.makeText(UpFileActivity.this, "录制成功", Toast.LENGTH_SHORT).show();
                     mStatus.setText("当前状态:录制成功，可以等待上传");
                 }
             });
-
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (writer!=null)
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
+    }
+
+    private void startRecord() {
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mStatus.setText("当前状态:录制中.....");
+                    Toast.makeText(UpFileActivity.this, "录制中，请耐心等待", Toast.LENGTH_SHORT).show();
+                }
+            });
+            initFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+
+            short[] myRecoed = new short[64000];
+            double[] doubles = new double[65536];
+            recorder.startRecording();//开始录音
+            for (int i = 0; i < 4; i++) {
+                Log.d(TAG, "第" + i + "次");
+                recorder.read(myRecoed, 0, myRecoed.length);
+                if (i == 3) {
+                    recorder.stop();
+                    recorder.release();
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                JNI.getStringFromNative(myRecoed, doubles);
+                Log.d(TAG, "过了JNI");
+
+                for (int j = 0; j < 4000; j++) {
+                    writer.write(doubles[j] + "\r\n");
+                    writer.flush();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        stopRecord();
+    }
+
+
+
+
+
+    private void initFile() throws IOException {
+        MyUser myUser = BmobUser.getCurrentUser(UpFileActivity.this, MyUser.class);
+        String mPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "bmob" + File.separator;
+        File file1 = new File(mPath);
+        if (!file1.exists()) {
+            file1.mkdirs();
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(mPath);
+        builder.append(myUser.getUsername());
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        date = new Date(System.currentTimeMillis());
+        String name = format.format(date);
+        builder.append(name);
+        builder.append(".txt");
+        path = builder.toString();
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+        file.createNewFile();
+        writer = new BufferedWriter(new FileWriter(file));
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (RecordThread != null) {
+            RecordThread.interrupt();
+        }
+
+        super.onDestroy();
     }
 }

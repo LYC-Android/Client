@@ -47,13 +47,10 @@ import cn.bmob.newim.bean.BmobIMUserInfo;
 import cn.bmob.newim.event.MessageEvent;
 import cn.bmob.newim.event.OfflineMessageEvent;
 import cn.bmob.newim.listener.ConnectListener;
-import cn.bmob.newim.notification.BmobNotificationManager;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.SaveListener;
-import util.CardService;
 import util.NetworkConnectChangedReceiver;
 import util.UpFileActivity;
 
@@ -188,7 +185,11 @@ public class ChatActivity extends BaseActivity {
         } else {
             info.setAge("未填写");
         }
-
+        if (list.get(i).getUsername() != null) {
+            info.setUsername(list.get(i).getUsername());
+        } else {
+            info.setUsername("未填写");
+        }
         info.setObjectId(list.get(i).getObjectId());
 
         if (list.get(i).getRealName() != null) {
@@ -221,12 +222,10 @@ public class ChatActivity extends BaseActivity {
 
         info.save();
     }
-    @OnClick({R.id.download, R.id.setting, R.id.out, R.id.bt_reconnect})
+    @OnClick({R.id.download, R.id.setting, R.id.out, R.id.bt_reconnect,R.id.history})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.download:
-//                Intent intent1 = new Intent(ChatActivity.this, DownloadActivity.class);
-//                startActivity(intent1, ActivityOptions.makeSceneTransitionAnimation(ChatActivity.this, mDownload, "fab").toBundle());
                 Intent intent2=new Intent(ChatActivity.this, UpFileActivity.class);
                 startActivity(intent2);
                 break;
@@ -241,6 +240,10 @@ public class ChatActivity extends BaseActivity {
                 MyUser myUser = BmobUser.getCurrentUser(ChatActivity.this, MyUser.class);
                 mNoUser.setVisibility(View.GONE);
                 connect(myUser);
+                break;
+            case R.id.history:
+                Intent intent4 = new Intent(ChatActivity.this, HistoryActivity.class);
+                startActivity(intent4);
                 break;
         }
     }
@@ -258,7 +261,6 @@ public class ChatActivity extends BaseActivity {
     protected void onDestroy() {
         BmobIM.getInstance().clear();
 
-        stopService(new Intent(ChatActivity.this, CardService.class));
         super.onDestroy();
 
     }

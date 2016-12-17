@@ -8,7 +8,7 @@ import cn.bmob.v3.BmobObject;
 /**
  * Created by mr.cheng on 2016/9/28.
  */
-public class Trasmit implements Serializable{
+public class Trasmit extends BmobObject{
     private static final long serialVersionUID = 1L;
     private List<Float> datas;
     private Boolean isOnline;

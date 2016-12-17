@@ -16,19 +16,12 @@ public class Six {
     private String mString = "02a0";
 
     private void method() {
-        int[][] ints = new int[3][];
-        int[] ints3 = new int[]{1, 2, 6};
-        ints[0]=ints3;
-        int[] ints1 = new int[]{1, 2, 3, 4, 5, 6};
-        ints[1] = ints1;
-        int[] ints2 = new int[]{3, 2, 3, 5, 5, 6};
-        ints[2] = ints2;
-        for (int i = 0; i < ints.length; i++) {
-            int[] ii=ints[i];
-            for (int j = 0; j < ints[i].length; j++) {
-                System.out.printf(ints[i][j]+" ");
+        int index = 0;
+        for (int i = 0; i < 1200; i++) {
+           index++;
+            if (index % (1200/7) == 0) {
+                System.out.println(i);
             }
-            System.out.println();
         }
     }
 

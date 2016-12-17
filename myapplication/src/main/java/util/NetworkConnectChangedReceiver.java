@@ -16,10 +16,8 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
             int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
             switch (wifiState) {
                 case WifiManager.WIFI_STATE_DISABLED:
-                    context.stopService(new Intent(context,CardService.class));
                     break;
                 case WifiManager.WIFI_STATE_ENABLED:
-                    context.startService(new Intent(context,CardService.class));
                     break;
             }
         }

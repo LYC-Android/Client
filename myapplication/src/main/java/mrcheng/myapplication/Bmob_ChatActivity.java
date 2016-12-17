@@ -666,7 +666,7 @@ public class Bmob_ChatActivity extends Activity implements ObseverListener, Mess
             LocationDialog.dismiss();
         }
         BmobIMApplication.setCONNECTING(true);
-        TransmitThread = new ReadFileThread(Bmob_ChatActivity.this,"");
+        TransmitThread = new ReadFileThread(Bmob_ChatActivity.this);
         TransmitThread.start();
         TrasmitDialog = new AlertDialog.Builder(Bmob_ChatActivity.this).create();
         TrasmitDialog.setTitle("正在"+realName+"进行心电传输");

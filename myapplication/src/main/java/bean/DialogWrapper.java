@@ -2,36 +2,21 @@ package bean;
 
 import cn.bmob.newim.bean.BmobIMMessage;
 import cn.bmob.newim.bean.BmobIMUserInfo;
-import util.CardService;
+
 
 /**
  * Created by mr.cheng on 2016/10/9.
  */
 
-public class  DialogWrapper {
+public class DialogWrapper {
     private BmobIMMessage msg;
     private BmobIMUserInfo info;
-private String ip;
-    private CardService cardService;
+    private String ip;
     private String objectId;
 
     public DialogWrapper(BmobIMUserInfo info, BmobIMMessage msg) {
         this.info = info;
         this.msg = msg;
-    }
-
-    public DialogWrapper(CardService cardService, String ip, String objectId) {
-        this.cardService = cardService;
-        this.ip = ip;
-        this.objectId = objectId;
-    }
-
-    public CardService getCardService() {
-        return cardService;
-    }
-
-    public void setCardService(CardService cardService) {
-        this.cardService = cardService;
     }
 
     public String getIp() {

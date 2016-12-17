@@ -7,9 +7,40 @@ package com.example;
 
 public class Three {
     public static void main(String[] args) {
-        new Three().method();
+        int[] tempResult = new int[40];
+        for (int i = 0; i < tempResult.length; i++) {
+            tempResult[i]=i;
+        }
+        int MaxIndex = 0;
+        int max =tempResult[0] ;
+        for (int h = 0; h < tempResult.length - 1; h++) {
+            if (max < tempResult[h + 1]) {
+                max = tempResult[h + 1];
+                MaxIndex = h + 1;
+            }
+        }
+        System.out.println(max);
+        System.out.println(MaxIndex);
     }
+    private void mm(int i,int y){
 
+        i=3;
+        y=4;
+
+    }
+    private void findMax(float[] floats,int x,float y) {
+        float max = floats[0];
+        x=0;
+        y=max;
+        for (int i = 0; i < floats.length - 1; i++) {
+            if (max < floats[i + 1]) {
+                max = floats[i + 1];
+                x=i+1;
+                y=max;
+            }
+        }
+
+    }
     /**
      * 输入参数
      */
